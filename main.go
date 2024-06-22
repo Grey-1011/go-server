@@ -15,6 +15,8 @@ func main() {
 	你可以将不同的 URL 路径和对应的处理函数注册到这个路由器上。
 	*/
 	mux := http.NewServeMux()
+
+	mux.Handle("/", http.FileServer(http.Dir(".")))
 	
 	/*
 	使用 &符号创建一个指向 http.Server 结构体的指针。
@@ -24,6 +26,8 @@ func main() {
 		Addr:  ":" + port,
 		Handler: mux,
 	}
+
+
 	// start the server
 	srv.ListenAndServe()
 
