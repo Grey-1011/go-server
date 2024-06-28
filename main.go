@@ -16,6 +16,7 @@ func main() {
 	const filepathRoot = "."
 	const port = "8080"
 
+	// 创建新数据库
 	db, err := database.NewDB("database.json")
 	if err != nil {
 		log.Fatal(err)
@@ -47,6 +48,7 @@ func main() {
 	// 我们定义了一个路由规则，将 POST 请求映射到 /api/validate_chirp 处理函数 handlerValidateChirp：
 	mux.HandleFunc("POST /api/chirps", apiCfg.handlerChirpsCreate)
 
+	// handlerChirpsRetrieve 获取所有 Chirps
 	mux.HandleFunc("GET /api/chirps", apiCfg.handlerChirpsRetrieve)
 	/*
 		使用 &符号创建一个指向 http.Server 结构体的指针。
