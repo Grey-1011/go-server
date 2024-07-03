@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"net/http"
 
@@ -21,6 +22,16 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	dbg := flag.Bool("debug", false, "Enable debug mode")
+	flag.Parse()
+	if dbg != nil && *dbg {
+		err := db.ResetDB()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	// Use: go build -o out && ./out --debug
 
 	apiCfg := apiConfig{
 		fileserverHits: 0,
@@ -50,6 +61,13 @@ func main() {
 
 	// handlerChirpsRetrieve 获取所有 Chirps
 	mux.HandleFunc("GET /api/chirps", apiCfg.handlerChirpsRetrieve)
+	
+	// 根据 ID 获取 Chirps
+	mux.HandleFunc("GET /api/chirps/{chirpID}", apiCfg.handlerChirpsGet)
+	
+	mux.HandleFunc("POST /api/users", apiCfg.handlerUsersCreate)
+	mux.HandleFunc("POST /api/login", apiCfg.handlerLogin)
+	
 	/*
 		使用 &符号创建一个指向 http.Server 结构体的指针。
 		这允许在其他函数和方法中使用这个指针来引用和修改同一个服务器实例。
