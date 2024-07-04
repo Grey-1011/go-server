@@ -4,18 +4,28 @@ import (
 	"flag"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/Grey-1011/go-server/internal/database"
+	"github.com/joho/godotenv"
 )
 
 type apiConfig struct {
 	fileserverHits int
 	DB             *database.DB
+	jwtSecret      string
 }
 
 func main() {
 	const filepathRoot = "."
 	const port = "8080"
+
+	godotenv.Load(".env")
+
+	jwtSecret := os.Getenv("JWT_SECRET")
+	if jwtSecret == "" {
+		log.Fatal("JWT_SECRET enviroment variable is not set")
+	}
 
 	// 创建新数据库
 	db, err := database.NewDB("database.json")
@@ -61,13 +71,15 @@ func main() {
 
 	// handlerChirpsRetrieve 获取所有 Chirps
 	mux.HandleFunc("GET /api/chirps", apiCfg.handlerChirpsRetrieve)
-	
+
 	// 根据 ID 获取 Chirps
 	mux.HandleFunc("GET /api/chirps/{chirpID}", apiCfg.handlerChirpsGet)
-	
+
 	mux.HandleFunc("POST /api/users", apiCfg.handlerUsersCreate)
 	mux.HandleFunc("POST /api/login", apiCfg.handlerLogin)
-	
+
+	// 更新用户的电子邮件和密码
+	mux.HandleFunc("PUT /api/users", apiCfg.handlerUsersUpdate)
 	/*
 		使用 &符号创建一个指向 http.Server 结构体的指针。
 		这允许在其他函数和方法中使用这个指针来引用和修改同一个服务器实例。
