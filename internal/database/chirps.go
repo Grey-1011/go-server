@@ -4,6 +4,7 @@ package database
 type Chirp struct {
 	ID   int    `json:"id"`
 	Body string `json:"body"`
+	AuthorID int `json:"author_id"`
 }
 
 
@@ -15,7 +16,7 @@ type Chirp struct {
 3) 将新的 Chirp 添加到 dbStructure.Chirps 映射中。
 4) 将更新后的数据库结构写回文件。
 */
-func (db *DB) CreateChirp(body string) (Chirp, error) {
+func (db *DB) CreateChirp(body string, authorID int) (Chirp, error) {
 	dbStructure, err := db.loadDB()
 	if err != nil {
 		return Chirp{}, err
@@ -25,6 +26,7 @@ func (db *DB) CreateChirp(body string) (Chirp, error) {
 	chirp := Chirp{
 		ID:   id,
 		Body: body,
+		AuthorID: authorID,
 	}
 	dbStructure.Chirps[id] = chirp
 
