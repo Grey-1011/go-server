@@ -60,26 +60,30 @@ func main() {
 	// 使用 middlewareMetricsInc 中间件包装文件服务器处理程序
 	mux.Handle("/app/*", fsHandler)
 
+
 	mux.HandleFunc("GET /api/healthz", handlerReadiness)
 	// 注册 /metrics 处理程序
 	mux.HandleFunc("GET /admin/metrics", apiCfg.handlerMetrics)
 	// 注册 /reset 处理程序
 	mux.HandleFunc("GET /api/reset", apiCfg.handlerReset)
 
+
 	// 我们定义了一个路由规则，将 POST 请求映射到 /api/validate_chirp 处理函数 handlerValidateChirp：
 	mux.HandleFunc("POST /api/chirps", apiCfg.handlerChirpsCreate)
-
 	// handlerChirpsRetrieve 获取所有 Chirps
 	mux.HandleFunc("GET /api/chirps", apiCfg.handlerChirpsRetrieve)
-
 	// 根据 ID 获取 Chirps
 	mux.HandleFunc("GET /api/chirps/{chirpID}", apiCfg.handlerChirpsGet)
 
-	mux.HandleFunc("POST /api/users", apiCfg.handlerUsersCreate)
-	mux.HandleFunc("POST /api/login", apiCfg.handlerLogin)
 
+	mux.HandleFunc("POST /api/users", apiCfg.handlerUsersCreate)
 	// 更新用户的电子邮件和密码
 	mux.HandleFunc("PUT /api/users", apiCfg.handlerUsersUpdate)
+	mux.HandleFunc("POST /api/login", apiCfg.handlerLogin)
+
+	mux.HandleFunc("POST /api/refresh", apiCfg.handlerRefresh)
+	mux.HandleFunc("POST /api/revoke", apiCfg.handlerRevoke)
+
 	/*
 		使用 &符号创建一个指向 http.Server 结构体的指针。
 		这允许在其他函数和方法中使用这个指针来引用和修改同一个服务器实例。

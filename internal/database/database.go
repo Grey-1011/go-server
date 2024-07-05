@@ -17,8 +17,9 @@ type DB struct {
 
 // 数据库的内部结构，包含一个 Chirps 映射
 type DBStructure struct {
-	Chirps map[int]Chirp `json:"chirps"`
-	Users  map[int]User  `json:"users"`
+	Chirps        map[int]Chirp           `json:"chirps"`
+	Users         map[int]User            `json:"users"`
+	RefreshTokens map[string]RefreshToken `json:"refresh_tokens"`
 }
 
 // ==== 创建新数据库 ====
@@ -41,8 +42,9 @@ createDB 方法创建一个新的空数据库文件，包含一个空的 Chirps 
 */
 func (db *DB) createDB() error {
 	dbStructure := DBStructure{
-		Chirps: map[int]Chirp{},
-		Users:  map[int]User{},
+		Chirps:        map[int]Chirp{},
+		Users:         map[int]User{},
+		RefreshTokens: map[string]RefreshToken{},
 	}
 	return db.writeDB(dbStructure)
 }
@@ -68,8 +70,6 @@ func (db *DB) ResetDB() error {
 	return db.ensureDB()
 }
 
-
-
 // ==== 加载数据库 ====
 /*
 1) 使用读锁确保并发安全。
@@ -85,7 +85,7 @@ func (db *DB) loadDB() (DBStructure, error) {
 	if errors.Is(err, os.ErrNotExist) {
 		return dbStructure, err
 	}
-	err = json.Unmarshal(dat, &dbStructure)
+	err = json.Unmarshal(dat, &dbStructure) // 解码
 	if err != nil {
 		return dbStructure, err
 	}
@@ -103,7 +103,7 @@ func (db *DB) writeDB(dbStructure DBStructure) error {
 	db.mu.Lock()
 	defer db.mu.Unlock()
 
-	dat, err := json.Marshal(dbStructure)
+	dat, err := json.Marshal(dbStructure) // 编码
 	if err != nil {
 		return err
 	}
