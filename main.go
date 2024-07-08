@@ -84,6 +84,8 @@ func main() {
 	mux.HandleFunc("POST /api/refresh", apiCfg.handlerRefresh)
 	mux.HandleFunc("POST /api/revoke", apiCfg.handlerRevoke)
 
+
+	mux.HandleFunc("DELETE /api/chirps/{chirpID}", apiCfg.handlerChirpsDelete)
 	/*
 		使用 &符号创建一个指向 http.Server 结构体的指针。
 		这允许在其他函数和方法中使用这个指针来引用和修改同一个服务器实例。
