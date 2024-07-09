@@ -30,7 +30,6 @@ func CheckPasswordHash(password, hash string) error {
 	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 }
 
-
 // MakeJWT -
 func MakeJWT(userID int, tokenSecret string, expiresIn time.Duration) (string, error) {
 	signinKey := []byte(tokenSecret)
@@ -44,7 +43,6 @@ func MakeJWT(userID int, tokenSecret string, expiresIn time.Duration) (string, e
 	return token.SignedString(signinKey)
 
 }
-
 
 // GetBearerToken -
 func GetBearerToken(headers http.Header) (string, error) {
@@ -60,17 +58,16 @@ func GetBearerToken(headers http.Header) (string, error) {
 	return splitAuth[1], nil
 }
 
-
 // ValidateJWT -
 func ValidateJWT(tokenString, tokenSecret string) (string, error) {
 	claimsStruct := jwt.RegisteredClaims{}
-	
+
 	token, err := jwt.ParseWithClaims(
 		tokenString,
 		&claimsStruct,
 		func(token *jwt.Token) (interface{}, error) {
-			return []byte(tokenSecret), 
-			nil
+			return []byte(tokenSecret),
+				nil
 		},
 	)
 	if err != nil {
@@ -81,7 +78,7 @@ func ValidateJWT(tokenString, tokenSecret string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	
+
 	issuer, err := token.Claims.GetIssuer()
 	if err != nil {
 		return "", err
@@ -94,8 +91,6 @@ func ValidateJWT(tokenString, tokenSecret string) (string, error) {
 
 }
 
-
-
 // MakeRefreshToken makes a random 256 bit token
 // encoded in hex
 func MakeRefreshToken() (string, error) {
@@ -105,5 +100,20 @@ func MakeRefreshToken() (string, error) {
 		return "", err
 	}
 	return hex.EncodeToString(token), nil
-	
+
+}
+
+// GetAPIKey -
+func GetAPIKey(headers http.Header) (string, error) {
+	authHeader := headers.Get("Authorization")
+	if authHeader == "" {
+		return "", ErrNoAuthHeaderIncluded
+	}
+	splitAuth := strings.Split(authHeader, " ")
+	if len(splitAuth) > 2 || splitAuth[0] != "ApiKey" {
+		return "", errors.New("malformed authorization header")
+	}
+
+	return splitAuth[1], nil
+
 }
