@@ -10,14 +10,15 @@ import (
 )
 
 type User struct {
-	ID    int    `json:"id"`
-	Email string `json:"email"`
-	Password string `json:"-"`  // Note: "-" : 
+	ID          int    `json:"id"`
+	Email       string `json:"email"`
+	Password    string `json:"-"` // Note: "-" :
+	IsChirpyRed bool   `json:"is_chirpy_red"`
 }
 
 func (cfg *apiConfig) handlerUsersCreate(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
-		Email string `json:"email"`
+		Email    string `json:"email"`
 		Password string `json:"password"`
 	}
 	type response struct {
@@ -40,7 +41,7 @@ func (cfg *apiConfig) handlerUsersCreate(w http.ResponseWriter, r *http.Request)
 
 	user, err := cfg.DB.CreateUser(params.Email, hashPassword)
 	if err != nil {
-		if errors.Is(err,  database.ErrAlreadyExists) {
+		if errors.Is(err, database.ErrAlreadyExists) {
 			respondWithError(w, http.StatusConflict, "User already exists")
 			return
 		}
@@ -51,8 +52,9 @@ func (cfg *apiConfig) handlerUsersCreate(w http.ResponseWriter, r *http.Request)
 
 	respondWithJSON(w, http.StatusCreated, response{
 		User: User{
-			ID: user.ID,
+			ID:    user.ID,
 			Email: user.Email,
+			IsChirpyRed:  user.IsChirpyRed,
 		},
 	})
 }

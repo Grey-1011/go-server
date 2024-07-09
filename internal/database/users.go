@@ -8,6 +8,7 @@ type User struct {
 	ID             int    `json:"id"`
 	Email          string `json:"email"`
 	HashedPassword string `json:"hashed_password"`
+	IsChirpyRed    bool   `json:"is_chirpy_red"`
 }
 
 var ErrAlreadyExists = errors.New("already exists")
@@ -67,7 +68,6 @@ func (db *DB) GetUserByEmail(email string) (User, error) {
 	return User{}, ErrNotExist
 }
 
-
 func (db *DB) UpdateUser(id int, email, hashedPassword string) (User, error) {
 	dbStructure, err := db.loadDB()
 	if err != nil {
@@ -83,11 +83,35 @@ func (db *DB) UpdateUser(id int, email, hashedPassword string) (User, error) {
 	user.HashedPassword = hashedPassword
 	dbStructure.Users[id] = user
 
-
 	err = db.writeDB(dbStructure)
 	if err != nil {
 		return User{}, err
 	}
 
 	return user, nil
+}
+
+
+// === UpgradeChirpyRed 
+func (db *DB) UpgradeChirpyRed(id int) (User, error) {
+	dbStructure, err := db.loadDB()
+	if err != nil {
+		return User{}, err
+	}
+
+	user, ok := dbStructure.Users[id]
+	if !ok {
+		return User{}, ErrNotExist
+	}
+
+	user.IsChirpyRed = true
+	dbStructure.Users[id] = user
+	
+	err = db.writeDB(dbStructure)
+	if err != nil {
+		return User{}, err
+	}
+
+	return user, nil
+
 }
